@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulateur Fiscal - Médecin Remplaçant</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #0A4D68;
+            --primary-light: #088395;
+            --accent: #05BFDB;
+            --success: #00C9A7;
+            --warning: #FFB800;
+            --danger: #FF6B6B;
+            --bg: #F8FAFB;
+            --surface: #FFFFFF;
+            --text: #1A2332;
+            --text-light: #64748B;
+            --border: #E2E8F0;
+            --shadow: rgba(10, 77, 104, 0.08);
+        }
+        
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #F8FAFB 0%, #E8F3F5 100%);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            padding: 2.5rem 2rem;
+            border-radius: 24px;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 60px var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(5, 191, 219, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(30%, -30%);
+        }
+        
+        h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+        
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            font-weight: 400;
+            position: relative;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 968px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px var(--shadow);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 8px 30px rgba(10, 77, 104, 0.12);
+            transform: translateY(-2px);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary-light) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .label-hint {
+            color: var(--text-light);
+            font-size: 0.85rem;
+            font-weight: 400;
+            margin-left: 0.5rem;
+        }
+        
+        input[type="number"],
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: var(--primary);
+            transition: all 0.2s ease;
+            background: var(--bg);
+        }
+        
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(5, 191, 219, 0.1);
+        }
+        
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%230A4D68' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 3rem;
+        }
+        
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .month-input {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .month-label {
+            min-width: 80px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+        
+        .month-input input {
+            flex: 1;
+        }
+        
+        .dashboard {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            padding: 2.5rem;
+            border-radius: 20px;
+            color: white;
+            box-shadow: 0 20px 60px var(--shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard h2 {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .metric {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .metric:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .metric-value.large {
+            font-size: 2.5rem;
+            color: var(--success);
+        }
+        
+        .metric-subtitle {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+        
+        .breakdown {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .breakdown-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.25rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent);
+        }
+        
+        .breakdown-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+        
+        .breakdown-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .alert {
+            background: var(--warning);
+            color: var(--text);
+            padding: 1.25rem 1.5rem;
+            border-radius: 12px;
+            margin-top: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(255, 184, 0, 0.2);
+        }
+        
+        .alert-icon {
+            font-size: 1.5rem;
+        }
+        
+        .info-box {
+            background: rgba(5, 191, 219, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 1.25rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            color: var(--text);
+        }
+        
+        .info-box strong {
+            color: var(--primary);
+        }
+        
+        .toggle-group {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--bg);
+            padding: 0.25rem;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+        }
+        
+        .toggle-btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-light);
+        }
+        
+        .toggle-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+        
+        .summary-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1rem;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+        }
+        
+        .summary-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .summary-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .summary-total {
+            background: rgba(0, 201, 167, 0.2);
+            padding: 1.5rem;
+            border-radius: 16px;
+            margin-top: 1rem;
+        }
+        
+        .summary-total .summary-label {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .summary-total .summary-value {
+            font-size: 2.5rem;
+            color: var(--success);
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .card,
+        .dashboard {
+            animation: slideIn 0.6s ease-out;
+        }
+        
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+        .card:nth-child(4) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💼 Simulateur Fiscal</h1>
+            <p class="subtitle">Médecin Remplaçant - Calcul automatique des cotisations et impôts</p>
+        </header>
+        
+        <div class="grid">
+            <!-- Paramètres personnels -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="icon">⚙️</div>
+                    <h2 class="card-title">Paramètres</h2>
+                </div>
+                
+                <div class="form-group">
+                    <label>Parts fiscales <span class="label-hint">(1 seul, 2 couple, +0.5/enfant)</span></label>
+                    <input type="number" id="parts" value="1" step="0.5" min="0.5">
+                </div>
+                
+                <div class="form-group">
+                    <label>Régime social</label>
+                    <div class="toggle-group">
+                        <button class="toggle-btn active" onclick="setRegime('RSPM')">RSPM</button>
+                        <button class="toggle-btn" onclick="setRegime('PAMC')">PAMC</button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Début d'activité <span class="label-hint">(2 premières années)</span></label>
+                    <div class="toggle-group">
+                        <button class="toggle-btn" onclick="setDebutant('Non')">Non</button>
+                        <button class="toggle-btn" onclick="setDebutant('Oui')">Oui</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Revenus hospitaliers -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="icon">🏥</div>
+                    <h2 class="card-title">Revenus Hospitaliers</h2>
+                </div>
+                
+                <div class="form-group">
+                    <label>Salaire NET mensuel (€)</label>
+                    <input type="number" id="salaireNet" value="0" min="0" oninput="calculate()">
+                </div>
+                
+                <div class="form-group">
+                    <label>Salaire BRUT annuel (€) <span class="label-hint">(NET × 12 × 1.25)</span></label>
+                    <input type="number" id="salaireBrut" value="0" min="0" oninput="calculate()">
+                </div>
+                
+                <div class="form-group">
+                    <label>Impôt déjà prélevé (€/an)</label>
+                    <input type="number" id="impotPreleve" value="0" min="0" oninput="calculate()">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Saisie mensuelle -->
+        <div class="card" style="grid-column: 1 / -1;">
+            <div class="card-header">
+                <div class="icon">📅</div>
+                <h2 class="card-title">Remplacements Mensuels</h2>
+            </div>
+            
+            <div class="month-grid">
+                <div class="month-input"><span class="month-label">Janvier</span><input type="number" class="month" value="0" min="0" oninput="calculate()"></div>
+                <div class="month-input"><span class="month-label">Février</span><input type="number" class="month" value="0" min="0" oninput="calculate()"></div>
+                <div class="month-input"><span class="month-label">Mars</span><input type="number" class="month" value="0" min="0" oninput="calculate()"></div>
+                <div class="month-input"><span class="month-label">Avril</span><input type="number" class="month" value="0" min="0" oninput="calculate()"></div>
+                <div class="month-input"><span class="month-label">Mai</span><input type="number" class="month" value="0" min="0" oninput="calculate()"></div>
+                <div class="month-input"><span class="month-label">Juin</span><input type="number" class="month" value="0" min="0" oninput="calculate()"></div>
+                <div class="month-input"><span class="month-label">Juillet</span><input type="number" class="month" value="0" min="0" oninput="calculate()"></div>
+                <div class="month-input"><span class="month-label">Août</span><input type="number" class="month" value="0" min="0" oninput="calculate()"></div>
+                <div class="month-input"><span class="month-label">Septembre</span><input type="number" class="month" value="0" min="0" oninput="calculate()"></div>
+                <div class="month-input"><span class="month-label">Octobre</span><input type="number" class="month" value="0" min="0" oninput="calculate()"></div>
+                <div class="month-input"><span class="month-label">Novembre</span><input type="number" class="month" value="0" min="0" oninput="calculate()"></div>
+                <div class="month-input"><span class="month-label">Décembre</span><input type="number" class="month" value="0" min="0" oninput="calculate()"></div>
+            </div>
+        </div>
+        
+        <!-- Tableau de bord -->
+        <div class="dashboard">
+            <h2>📊 Tableau de Bord Fiscal</h2>
+            
+            <div class="metrics">
+                <div class="metric">
+                    <div class="metric-label">Remplacements</div>
+                    <div class="metric-value" id="totalRemplacements">0 €</div>
+                </div>
+                
+                <div class="metric">
+                    <div class="metric-label">Salaire Hospitalier NET</div>
+                    <div class="metric-value" id="totalSalaireNet">0 €</div>
+                </div>
+                
+                <div class="metric">
+                    <div class="metric-label">Revenus Totaux NET</div>
+                    <div class="metric-value" id="totalRevenus">0 €</div>
+                </div>
+            </div>
+            
+            <div class="breakdown">
+                <div class="breakdown-item">
+                    <div class="breakdown-label">Cotisations Sociales</div>
+                    <div class="breakdown-value" id="cotisations">0 €</div>
+                </div>
+                
+                <div class="breakdown-item">
+                    <div class="breakdown-label">Taux de cotisation</div>
+                    <div class="breakdown-value" id="tauxCotisations">0%</div>
+                </div>
+                
+                <div class="breakdown-item">
+                    <div class="breakdown-label">Impôt total</div>
+                    <div class="breakdown-value" id="impotTotal">0 €</div>
+                </div>
+                
+                <div class="breakdown-item">
+                    <div class="breakdown-label">Impôt restant</div>
+                    <div class="breakdown-value" id="impotRestant">0 €</div>
+                </div>
+            </div>
+            
+            <div class="summary-section">
+                <div class="summary-item">
+                    <span class="summary-label">Remplacements</span>
+                    <span class="summary-value" id="summaryRemplacements">0 €</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label" style="color: var(--success);">+ Salaire hospitalier NET</span>
+                    <span class="summary-value" id="summarySalaire">0 €</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label" style="color: var(--danger);">- Cotisations sociales</span>
+                    <span class="summary-value" id="summaryCotisations">0 €</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label" style="color: var(--danger);">- Impôt restant</span>
+                    <span class="summary-value" id="summaryImpot">0 €</span>
+                </div>
+                
+                <div class="summary-total">
+                    <div class="summary-item" style="padding: 0;">
+                        <span class="summary-label">💰 REVENU NET DISPONIBLE</span>
+                        <span class="summary-value" id="revenuNet">0 €</span>
+                    </div>
+                    <div style="font-size: 1rem; opacity: 0.9; margin-top: 0.5rem;">
+                        Soit <span id="revenuMensuel" style="font-weight: 700;">0 €</span>/mois
+                    </div>
+                </div>
+            </div>
+            
+            <div id="alertContainer"></div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <div class="icon">ℹ️</div>
+                <h2 class="card-title">Informations</h2>
+            </div>
+            
+            <div class="info-box">
+                <strong>RSPM</strong> : 13,5% si ≤ 19 000 €, puis 21,2% jusqu'à 38 000 €<br>
+                <strong>PAMC</strong> : ~40% du bénéfice (après abattement 34%)<br>
+                <strong>Abattement Micro-BNC</strong> : 34% sur les remplacements<br>
+                <strong>Prélèvement à la source</strong> : Déjà déduit du salaire hospitalier
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let regime = 'RSPM';
+        let debutant = 'Non';
+        
+        const TAUX_RSPM_1 = 0.135;
+        const TAUX_RSPM_2 = 0.212;
+        const SEUIL_RSPM_1 = 19000;
+        const SEUIL_RSPM_2 = 38000;
+        const TAUX_PAMC = 0.40;
+        const ABATTEMENT_BNC = 0.34;
+        const COTISATION_DEBUTANT = 957;
+        
+        const BAREME_IR = [
+            { max: 11294, taux: 0 },
+            { max: 28797, taux: 0.11 },
+            { max: 82341, taux: 0.30 },
+            { max: 177106, taux: 0.41 },
+            { max: Infinity, taux: 0.45 }
+        ];
+        
+        function setRegime(r) {
+            regime = r;
+            document.querySelectorAll('.toggle-group')[0].querySelectorAll('.toggle-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', (i === 0 && r === 'RSPM') || (i === 1 && r === 'PAMC'));
+            });
+            calculate();
+        }
+        
+        function setDebutant(d) {
+            debutant = d;
+            document.querySelectorAll('.toggle-group')[1].querySelectorAll('.toggle-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', (i === 0 && d === 'Non') || (i === 1 && d === 'Oui'));
+            });
+            calculate();
+        }
+        
+        function formatEuro(n) {
+            return new Intl.NumberFormat('fr-FR', { 
+                style: 'decimal',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0 
+            }).format(Math.round(n)) + ' €';
+        }
+        
+        function formatPercent(n) {
+            return (n * 100).toFixed(1) + '%';
+        }
+        
+        function calculate() {
+            // Récupérer les valeurs
+            const parts = parseFloat(document.getElementById('parts').value) || 1;
+            const salaireNet = parseFloat(document.getElementById('salaireNet').value) || 0;
+            const salaireBrut = parseFloat(document.getElementById('salaireBrut').value) || 0;
+            const impotPreleve = parseFloat(document.getElementById('impotPreleve').value) || 0;
+            
+            const months = Array.from(document.querySelectorAll('.month')).map(input => 
+                parseFloat(input.value) || 0
+            );
+            const remplacements = months.reduce((sum, val) => sum + val, 0);
+            
+            const salaireNetAnnuel = salaireNet * 12;
+            const totalRevenus = remplacements + salaireNetAnnuel;
+            
+            // Cotisations sociales (uniquement sur remplacements)
+            let cotisations = 0;
+            if (regime === 'RSPM') {
+                if (remplacements <= SEUIL_RSPM_1) {
+                    cotisations = remplacements * TAUX_RSPM_1;
+                } else if (remplacements <= SEUIL_RSPM_2) {
+                    cotisations = SEUIL_RSPM_1 * TAUX_RSPM_1 + 
+                                 (remplacements - SEUIL_RSPM_1) * TAUX_RSPM_2;
+                } else {
+                    // Au-delà de 38k, on garde le calcul RSPM mais on alerte
+                    cotisations = SEUIL_RSPM_1 * TAUX_RSPM_1 + 
+                                 (SEUIL_RSPM_2 - SEUIL_RSPM_1) * TAUX_RSPM_2;
+                }
+                
+                if (debutant === 'Oui') {
+                    cotisations += COTISATION_DEBUTANT;
+                }
+            } else {
+                // PAMC sur le bénéfice après abattement
+                const benefice = remplacements * (1 - ABATTEMENT_BNC);
+                cotisations = benefice * TAUX_PAMC;
+            }
+            
+            const tauxCotisations = remplacements > 0 ? cotisations / remplacements : 0;
+            
+            // Calcul impôt
+            const abattementRemplacements = remplacements * ABATTEMENT_BNC;
+            const bncImposable = remplacements - abattementRemplacements;
+            const revenuFiscal = bncImposable + salaireBrut;
+            const quotientFamilial = parts > 0 ? revenuFiscal / parts : 0;
+            
+            // Calcul par tranches
+            let impotParTranche = 0;
+            let reste = quotientFamilial;
+            let tranchePrecedente = 0;
+            
+            for (let tranche of BAREME_IR) {
+                if (reste <= 0) break;
+                
+                const baseTrancheImposable = Math.min(reste, tranche.max - tranchePrecedente);
+                impotParTranche += baseTrancheImposable * tranche.taux;
+                
+                reste -= baseTrancheImposable;
+                tranchePrecedente = tranche.max;
+            }
+            
+            const impotTotal = impotParTranche * parts;
+            const impotRestant = Math.max(0, impotTotal - impotPreleve);
+            
+            // Revenu net disponible
+            const revenuNetDisponible = remplacements + salaireNetAnnuel - cotisations - impotRestant;
+            const revenuNetMensuel = revenuNetDisponible / 12;
+            
+            // Afficher les résultats
+            document.getElementById('totalRemplacements').textContent = formatEuro(remplacements);
+            document.getElementById('totalSalaireNet').textContent = formatEuro(salaireNetAnnuel);
+            document.getElementById('totalRevenus').textContent = formatEuro(totalRevenus);
+            
+            document.getElementById('cotisations').textContent = formatEuro(cotisations);
+            document.getElementById('tauxCotisations').textContent = formatPercent(tauxCotisations);
+            document.getElementById('impotTotal').textContent = formatEuro(impotTotal);
+            document.getElementById('impotRestant').textContent = formatEuro(impotRestant);
+            
+            document.getElementById('summaryRemplacements').textContent = formatEuro(remplacements);
+            document.getElementById('summarySalaire').textContent = formatEuro(salaireNetAnnuel);
+            document.getElementById('summaryCotisations').textContent = formatEuro(cotisations);
+            document.getElementById('summaryImpot').textContent = formatEuro(impotRestant);
+            
+            document.getElementById('revenuNet').textContent = formatEuro(revenuNetDisponible);
+            document.getElementById('revenuMensuel').textContent = formatEuro(revenuNetMensuel);
+            
+            // Alertes
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.innerHTML = '';
+            
+            if (remplacements > SEUIL_RSPM_1 && remplacements <= SEUIL_RSPM_2 && regime === 'RSPM') {
+                alertContainer.innerHTML = `
+                    <div class="alert">
+                        <span class="alert-icon">⚠️</span>
+                        <span>Revenus entre 19 000 et 38 000 € : Taux RSPM à 21,2% sur la fraction excédentaire</span>
+                    </div>
+                `;
+            }
+            
+            if (remplacements > SEUIL_RSPM_2) {
+                alertContainer.innerHTML = `
+                    <div class="alert">
+                        <span class="alert-icon">🚨</span>
+                        <span><strong>Revenus > 38 000 €</strong> : Sortie du RSPM. Basculement vers PAMC au 1er janvier suivant. Consultez un expert-comptable.</span>
+                    </div>
+                `;
+            }
+        }
+        
+        // Calcul initial
+        calculate();
+    </script>
+</body>
+</html>
